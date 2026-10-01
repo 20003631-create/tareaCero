@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAREA CERO - Organizador de Bachillerato</title>
+  <style>
+    /* ==========================================================================
+       VARIABLES Y RESET
+       ========================================================================== */
+    :root {
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-subtle: #eef2ff;
+      --border: #e2e8f0;
+      --border-focus: #6366f1;
+      
+      /* Prioridades */
+      --prio-alta-bg: #fef2f2;
+      --prio-alta-text: #b91c1c;
+      --prio-alta-dot: #ef4444;
+      --prio-media-bg: #fffbeb;
+      --prio-media-text: #b45309;
+      --prio-media-dot: #f59e0b;
+      --prio-baja-bg: #ecfdf5;
+      --prio-baja-text: #047857;
+      --prio-baja-dot: #10b981;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 5rem;
+    }
+
+    /* ==========================================================================
+       TOP BAR (ERONOMÍA MÓVIL)
+       ========================================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+    }
+
+    .header-inner {
+      max-width: 580px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .brand-text h1 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-text p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .counter-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .counter-badge strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       CONTENEDOR PRINCIPAL
+       ========================================================================== */
+    main {
+      max-width: 580px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ==========================================================================
+       TARJETA DE RESUMEN Y BOTÓN CREAR
+       ========================================================================== */
+    .summary-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .summary-card h2 {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .summary-card p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .btn-primary {
+      min-height: 44px;
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: var(--primary-hover);
+    }
+
+    /* ==========================================================================
+       FORMULARIO NUEVA TAREA
+       ========================================================================== */
+    .form-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-focus);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-md);
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-header h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+      width: 100%;
+      min-height: 42px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      outline: none;
+      transition: border 0.15s ease, background 0.15s ease;
+    }
+
+    .form-control:focus {
+      background: white;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Selector de prioridad */
+    .priority-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .priority-btn {
+      min-height: 44px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot-alta { background: var(--prio-alta-dot); }
+    .dot-media { background: var(--prio-media-dot); }
+    .dot-baja { background: var(--prio-baja-dot); }
+
+    .priority-btn.selected[data-prio="alta"] {
+      background: var(--prio-alta-bg);
+      border-color: var(--prio-alta-dot);
+      color: var(--prio-alta-text);
+    }
+
+    .priority-btn.selected[data-prio="media"] {
+      background: var(--prio-media-bg);
+      border-color: var(--prio-media-dot);
+      color: var(--prio-media-text);
+    }
+
+    .priority-btn.selected[data-prio="baja"] {
+      background: var(--prio-baja-bg);
+      border-color: var(--prio-baja-dot);
+      color: var(--prio-baja-text);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-secondary {
+      min-height: 44px;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       FILTROS (FUNCIÓN 3)
+       ========================================================================== */
+    .filter-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .status-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .status-tab {
+      min-height: 38px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .status-tab.active {
+      background: white;
+      color: var(--primary);
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-subject-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-subject-row label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       LISTA DE TAREAS (FUNCIÓN 1 Y 2)
+       ========================================================================== */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .task-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem 1rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transition: border-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .task-card.completed {
+      background: #fafafc;
+      opacity: 0.65;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      color: var(--text-subtle);
+    }
+
+    /* Checkbox táctil >= 44px */
+    .check-btn {
+      width: 44px;
+      height: 44px;
+      margin: -6px 0 0 -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .task-card.completed .check-box {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+
+    .check-box svg {
+      display: none;
+      width: 13px;
+      height: 13px;
+      stroke-width: 3;
+    }
+
+    .task-card.completed .check-box svg {
+      display: block;
+    }
+
+    .task-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .task-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .delete-btn {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+      color: #ef4444;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin: -6px -8px 0 0;
+      flex-shrink: 0;
+    }
+
+    .edit-btn {
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+
+    .edit-btn:hover {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    .confirm-delete-box {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      margin: -4px -6px 0 0;
+      flex-shrink: 0;
+    }
+
+    .confirm-delete-text {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #b91c1c;
+    }
+
+    .confirm-btn-yes {
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      cursor: pointer;
+      min-height: 28px;
+    }
+
+    .confirm-btn-no {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 5px;
+      font-size: 0.85rem;
+    }
+
+    /* Metadatos en texto limpio (disciplina cero-píldoras) */
+    .task-meta {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.725rem;
+      color: var(--text-muted);
+    }
+
+    .meta-sep {
+      color: #cbd5e1;
+    }
+
+    .prio-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .empty-state {
+      background: white;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 1rem;
+      text-align: center;
+    }
+
+    .empty-state h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .empty-state p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Botón flotante para móviles */
+    .fab-btn {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      width: 56px;
+      height: 56px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      cursor: pointer;
+      z-index: 30;
+      transition: transform 0.1s ease;
+    }
+
+    .fab-btn:active {
+      transform: scale(0.93);
+    }
+
+    @media (min-width: 640px) {
+      .fab-btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">0</div>
+        <div class="brand-text">
+          <h1>TAREA CERO</h1>
+          <p>Organizador Escolar · Bachillerato</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="counter-badge" id="counterBadge">
+          <strong id="pendingCounter">0</strong> pendientes · <span id="completedCounter">0</span> listas
+        </div>
+        <button 
+          type="button" 
+          onclick="exportTasksJSON()" 
+          title="Descargar respaldo JSON de mis tareas" 
+          style="padding: 4px 8px; font-size: 0.72rem; font-weight: 600; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer;"
+        >
+          ⬇ Respaldar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main>
+    <!-- RESUMEN / CTA NUEVA TAREA -->
+    <section class="summary-card">
+      <div>
+        <h2 id="summaryTitle">Organizador de entregas</h2>
+        <p>Priorizá tus materias para no atrasarte en las evaluaciones.</p>
+      </div>
+      <button class="btn-primary" id="openFormBtn" onclick="toggleForm(true)">
+        <span>+ Nueva tarea</span>
+      </button>
+    </section>
+
+    <!-- FORMULARIO DE CREACIÓN (FUNCIÓN 1) -->
+    <section class="form-panel" id="formPanel">
+      <div class="form-header">
+        <h3>Nueva Tarea Escolar</h3>
+        <button class="close-btn" onclick="toggleForm(false)" aria-label="Cerrar formulario">✕</button>
+      </div>
+
+      <form id="taskForm" onsubmit="handleAddTask(event)">
+        <!-- Título -->
+        <div class="form-group">
+          <label for="taskTitle">¿Qué tenés que hacer? *</label>
+          <input 
+            type="text" 
+            id="taskTitle" 
+            class="form-control" 
+            placeholder="Ej: Ejercicios 1 a 15 de trigonometría" 
+            required 
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="form-row">
+          <!-- Materia -->
+          <div class="form-group">
+            <label for="taskSubject">Materia</label>
+            <select id="taskSubject" class="form-control" onchange="checkCustomSubject(this.value)">
+              <option value="Matemáticas">Matemáticas</option>
+              <option value="Física y Química">Física y Química</option>
+              <option value="Lengua y Literatura">Lengua y Literatura</option>
+              <option value="Historia">Historia</option>
+              <option value="Biología">Biología</option>
+              <option value="Inglés">Inglés</option>
+              <option value="Filosofía">Filosofía</option>
+              <option value="Geografía">Geografía</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="OTRA">Otra materia...</option>
+            </select>
+            <input 
+              type="text" 
+              id="customSubjectInput" 
+              class="form-control" 
+              style="display: none; margin-top: 0.5rem;" 
+              placeholder="Nombre de la materia"
+            >
+          </div>
+
+          <!-- Fecha de entrega -->
+          <div class="form-group">
+            <label for="taskDueDate">Fecha de entrega</label>
+            <input type="date" id="taskDueDate" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Prioridad -->
+        <div class="form-group">
+          <label>Nivel de prioridad</label>
+          <div class="priority-options">
+            <button type="button" class="priority-btn" data-prio="alta" onclick="setPriority('alta')">
+              <span class="dot dot-alta"></span> Alta
+            </button>
+            <button type="button" class="priority-btn selected" data-prio="media" onclick="setPriority('media')">
+              <span class="dot dot-media"></span> Media
+            </button>
+            <button type="button" class="priority-btn" data-prio="baja" onclick="setPriority('baja')">
+              <span class="dot dot-baja"></span> Baja
+            </button>
+          </div>
+          <input type="hidden" id="taskPriority" value="media">
+        </div>
+
+        <!-- Acciones del Formulario -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="toggleForm(false)">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar tarea</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- FILTROS (FUNCIÓN 3) -->
+    <section class="filter-panel">
+      <!-- Filtro por Estado -->
+      <div class="status-tabs">
+        <button class="status-tab active" data-status="todas" onclick="setStatusFilter('todas', this)">
+          Todas
+        </button>
+        <button class="status-tab" data-status="pendientes" onclick="setStatusFilter('pendientes', this)">
+          Pendientes
+        </button>
+        <button class="status-tab" data-status="completadas" onclick="setStatusFilter('completadas', this)">
+          Completadas
+        </button>
+      </div>
+
+      <!-- Filtro por Materia -->
+      <div class="filter-subject-row">
+        <label for="filterSubject">Materia:</label>
+        <select id="filterSubject" class="form-control" onchange="setSubjectFilter(this.value)">
+          <option value="todas">Todas las materias</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- LISTADO DE TAREAS (FUNCIÓN 1 Y 2) -->
+    <section id="tasksContainer" class="task-list" aria-live="polite">
+      <!-- Se inyecta dinámicamente -->
+    </section>
+  </main>
+
+  <!-- BOTÓN FLOTANTE MÓVIL (ZONA DE PULGAR) -->
+  <button class="fab-btn" onclick="toggleForm(true); window.scrollTo({top: 0, behavior: 'smooth'});" aria-label="Crear nueva tarea">+</button>
+
+  <!-- ==========================================================================
+       LÓGICA JAVASCRIPT INTEGRADA
+       ========================================================================== -->
+  <script>
+    // ESTADO DE LA APLICACIÓN
+    let tasks = [];
+    let currentStatusFilter = 'todas';
+    let currentSubjectFilter = 'todas';
+    let editingTaskId = null;
+    let confirmDeleteId = null;
+
+    // DATOS INICIALES DE DEMOSTRACIÓN (SI EL ALUMNO ABRE POR PRIMERA VEZ)
+    const DEMO_TASKS = [
+      {
+        id: 't-1',
+        title: 'Resolver problemas 5 al 12 de cinemática',
+        subject: 'Física y Química',
+        dueDate: getRelativeDate(1), // Mañana
+        priority: 'alta',
+        completed: false
+      },
+      {
+        id: 't-2',
+        title: 'Redactar comentario de texto sobre la Generación del 27',
+        subject: 'Lengua y Literatura',
+        dueDate: getRelativeDate(2),
+        priority: 'media',
+        completed: false
+      },
+      {
+        id: 't-3',
+        title: 'Entregar mapa mental del período de entreguerras',
+        subject: 'Historia',
+        dueDate: getRelativeDate(0), // Hoy
+        priority: 'alta',
+        completed: true
+      }
+    ];
+
+    // Helper para fechas relativas en formato YYYY-MM-DD
+    function getRelativeDate(offsetDays) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      return d.toISOString().split('T')[0];
+    }
+
+    // CARGA INICIAL
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Cargar fecha por defecto (hoy)
+      document.getElementById('taskDueDate').value = getRelativeDate(0);
+
+      // 2. Cargar datos de LocalStorage o iniciales
+      try {
+        const stored = localStorage.getItem('tarea_cero_db');
+        if (stored) {
+          tasks = JSON.parse(stored);
+        } else {
+          tasks = DEMO_TASKS;
+          saveTasks();
+        }
+      } catch (err) {
+        console.warn('No se pudo acceder a LocalStorage, usando memoria local', err);
+        tasks = DEMO_TASKS;
+      }
+
+      // 3. Renderizar vista inicial
+      updateSubjectFilterOptions();
+      renderTasks();
+    });
+
+    // GUARDAR EN STORAGE
+    function saveTasks() {
+      try {
+        localStorage.setItem('tarea_cero_db', JSON.stringify(tasks));
+      } catch (err) {
+        console.error('Error guardando tareas', err);
+      }
+    }
+
+    // EXPORTAR TAREAS A ARCHIVO JSON DE RESPALDO
+    function exportTasksJSON() {
+      try {
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(tasks, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute('href', dataStr);
+        const dateStr = new Date().toISOString().split('T')[0];
+        downloadAnchor.setAttribute('download', 'tarea_cero_respaldo_' + dateStr + '.json');
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      } catch (err) {
+        console.error('Error al exportar respaldo JSON', err);
+      }
+    }
+
+    // FORMULARIO: ABRIR / CERRAR / RESETEAR
+    function toggleForm(show) {
+      const panel = document.getElementById('formPanel');
+      const formHeader = document.querySelector('#formPanel .form-header h3');
+      const submitBtn = document.querySelector('#taskForm button[type="submit"]');
+
+      if (show) {
+        panel.classList.add('active');
+        if (!editingTaskId) {
+          formHeader.textContent = 'Nueva Tarea Escolar';
+          submitBtn.textContent = 'Guardar tarea';
+        }
+        document.getElementById('taskTitle').focus();
+      } else {
+        panel.classList.remove('active');
+        editingTaskId = null;
+        document.getElementById('taskForm').reset();
+        document.getElementById('taskDueDate').value = getRelativeDate(0);
+        document.getElementById('customSubjectInput').style.display = 'none';
+        setPriority('media');
+        formHeader.textContent = 'Nueva Tarea Escolar';
+        submitBtn.textContent = 'Guardar tarea';
+      }
+    }
+
+    // INICIAR EDICIÓN DE TAREA EXISTENTE
+    function startEdit(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      editingTaskId = id;
+      document.getElementById('taskTitle').value = task.title;
+
+      const subjectSelect = document.getElementById('taskSubject');
+      const customInput = document.getElementById('customSubjectInput');
+      const standardSubjects = Array.from(subjectSelect.options).map(o => o.value);
+
+      if (standardSubjects.includes(task.subject) && task.subject !== 'OTRA') {
+        subjectSelect.value = task.subject;
+        customInput.style.display = 'none';
+        customInput.value = '';
+      } else {
+        subjectSelect.value = 'OTRA';
+        customInput.style.display = 'block';
+        customInput.value = task.subject;
+      }
+
+      document.getElementById('taskDueDate').value = task.dueDate || getRelativeDate(0);
+      setPriority(task.priority || 'media');
+
+      const formHeader = document.querySelector('#formPanel .form-header h3');
+      const submitBtn = document.querySelector('#taskForm button[type="submit"]');
+      formHeader.textContent = 'Editar Tarea Escolar';
+      submitBtn.textContent = 'Guardar cambios';
+
+      const panel = document.getElementById('formPanel');
+      panel.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('taskTitle').focus();
+    }
+
+    // FORMULARIO: SELECCIÓN DE PRIORIDAD
+    function setPriority(level) {
+      document.getElementById('taskPriority').value = level;
+      const btns = document.querySelectorAll('.priority-btn');
+      btns.forEach(btn => {
+        if (btn.dataset.prio === level) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+
+    // FORMULARIO: MATERIA PERSONALIZADA
+    function checkCustomSubject(val) {
+      const input = document.getElementById('customSubjectInput');
+      if (val === 'OTRA') {
+        input.style.display = 'block';
+        input.required = true;
+        input.focus();
+      } else {
+        input.style.display = 'none';
+        input.required = false;
+      }
+    }
+
+    // FUNCIÓN 1: CREAR O EDITAR TAREA
+    function handleAddTask(e) {
+      e.preventDefault();
+      const title = document.getElementById('taskTitle').value.trim();
+      if (!title) return;
+
+      let subject = document.getElementById('taskSubject').value;
+      if (subject === 'OTRA') {
+        subject = document.getElementById('customSubjectInput').value.trim() || 'General';
+      }
+
+      const dueDate = document.getElementById('taskDueDate').value || getRelativeDate(0);
+      const priority = document.getElementById('taskPriority').value;
+
+      if (editingTaskId) {
+        // Actualizar tarea existente
+        const task = tasks.find(t => t.id === editingTaskId);
+        if (task) {
+          task.title = title;
+          task.subject = subject;
+          task.dueDate = dueDate;
+          task.priority = priority;
+        }
+      } else {
+        // Crear nueva tarea
+        const newTask = {
+          id: 't-' + Date.now(),
+          title,
+          subject,
+          dueDate,
+          priority,
+          completed: false
+        };
+        tasks.unshift(newTask);
+      }
+
+      saveTasks();
+      updateSubjectFilterOptions();
+      renderTasks();
+      toggleForm(false);
+    }
+
+    // FUNCIÓN 2: MARCAR TAREA COMPLETADA / PENDIENTE
+    function toggleTaskStatus(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    // CONFIRMACIÓN RÁPIDA DE ELIMINACIÓN
+    function askDelete(id) {
+      confirmDeleteId = id;
+      renderTasks();
+    }
+
+    function cancelDelete() {
+      confirmDeleteId = null;
+      renderTasks();
+    }
+
+    function confirmDelete(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      if (editingTaskId === id) {
+        toggleForm(false);
+      }
+      confirmDeleteId = null;
+      saveTasks();
+      updateSubjectFilterOptions();
+      renderTasks();
+    }
+
+    // FUNCIÓN 3: FILTRAR POR ESTADO
+    function setStatusFilter(status, btnElement) {
+      currentStatusFilter = status;
+      document.querySelectorAll('.status-tab').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      renderTasks();
+    }
+
+    // FUNCIÓN 3: FILTRAR POR MATERIA
+    function setSubjectFilter(subject) {
+      currentSubjectFilter = subject;
+      renderTasks();
+    }
+
+    // ACTUALIZAR SELECTOR DE MATERIAS
+    function updateSubjectFilterOptions() {
+      const select = document.getElementById('filterSubject');
+      const savedSelection = currentSubjectFilter;
+
+      // Obtener lista única de materias
+      const subjects = new Set();
+      tasks.forEach(t => {
+        if (t.subject) subjects.add(t.subject.trim());
+      });
+
+      const sortedSubjects = Array.from(subjects).sort();
+
+      // Reconstruir opciones
+      select.innerHTML = '<option value="todas">Todas las materias (' + tasks.length + ')</option>';
+      sortedSubjects.forEach(s => {
+        const count = tasks.filter(t => t.subject === s).length;
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = `${s} (${count})`;
+        if (s === savedSelection) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    // FORMATO DE FECHA RELATIVA AMIGABLE
+    function formatFriendlyDate(dateStr) {
+      if (!dateStr) return 'Sin fecha';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+
+      const target = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Hoy';
+      if (diffDays === 1) return 'Mañana';
+      if (diffDays === -1) return 'Ayer';
+      if (diffDays < -1) return `Venció hace ${Math.abs(diffDays)}d`;
+      if (diffDays <= 6) return `En ${diffDays} días`;
+
+      return target.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    }
+
+    // RENDERIZADO PRINCIPAL
+    function renderTasks() {
+      const container = document.getElementById('tasksContainer');
+      const pendingCount = tasks.filter(t => !t.completed).length;
+      const completedCount = tasks.filter(t => t.completed).length;
+
+      // Actualizar contadores
+      document.getElementById('pendingCounter').textContent = pendingCount;
+      document.getElementById('completedCounter').textContent = completedCount;
+
+      const summaryTitle = document.getElementById('summaryTitle');
+      if (pendingCount === 0 && tasks.length > 0) {
+        summaryTitle.textContent = '¡Genial! Estás al día con tus tareas';
+      } else if (pendingCount === 1) {
+        summaryTitle.textContent = 'Te queda 1 entrega pendiente';
+      } else {
+        summaryTitle.textContent = `Tenés ${pendingCount} tareas escolares pendientes`;
+      }
+
+      // Filtrado
+      const filtered = tasks.filter(t => {
+        if (currentStatusFilter === 'pendientes' && t.completed) return false;
+        if (currentStatusFilter === 'completadas' && !t.completed) return false;
+        if (currentSubjectFilter !== 'todas' && t.subject !== currentSubjectFilter) return false;
+        return true;
+      });
+
+      // Orden: pendientes primero, luego por fecha
+      filtered.sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return (a.dueDate || '').localeCompare(b.dueDate || '');
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h4>No hay tareas con estos filtros</h4>
+            <p>${tasks.length === 0 ? 'Creá tu primera tarea con el botón "+ Nueva tarea".' : 'Probá cambiando el filtro de estado o materia.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const isCompleted = t.completed;
+        const friendlyDate = formatFriendlyDate(t.dueDate);
+        const prioText = t.priority === 'alta' ? 'Alta' : t.priority === 'media' ? 'Media' : 'Baja';
+
+        return `
+          <article class="task-card ${isCompleted ? 'completed' : ''}" id="card-${t.id}">
+            <button 
+              type="button" 
+              class="check-btn" 
+              onclick="toggleTaskStatus('${t.id}')"
+              aria-label="${isCompleted ? 'Marcar como pendiente' : 'Marcar como completada'}"
+            >
+              <div class="check-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <div class="task-content">
+              <div class="task-top">
+                <span class="task-title" onclick="toggleTaskStatus('${t.id}')">${escapeHtml(t.title)}</span>
+                ${confirmDeleteId === t.id ? `
+                  <div class="confirm-delete-box">
+                    <span class="confirm-delete-text">¿Eliminar?</span>
+                    <button type="button" class="confirm-btn-yes" onclick="confirmDelete('${t.id}')">Sí</button>
+                    <button type="button" class="confirm-btn-no" onclick="cancelDelete()" aria-label="Cancelar">✕</button>
+                  </div>
+                ` : `
+                  <div class="action-group">
+                    <button 
+                      type="button" 
+                      class="edit-btn" 
+                      onclick="startEdit('${t.id}')" 
+                      title="Editar tarea"
+                      aria-label="Editar tarea"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                      </svg>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="delete-btn" 
+                      onclick="askDelete('${t.id}')" 
+                      title="Eliminar tarea"
+                      aria-label="Eliminar tarea"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                `}
+              </div>
+
+              <div class="task-meta">
+                <strong style="color: var(--text-main);">${escapeHtml(t.subject)}</strong>
+                <span class="meta-sep">·</span>
+                <span>Entrega: ${friendlyDate}</span>
+                <span class="meta-sep">·</span>
+                <span class="prio-indicator">
+                  <span class="dot dot-${t.priority}"></span>
+                  Prioridad ${prioText}
+                </span>
+                <span class="meta-sep">·</span>
+                <span>${isCompleted ? 'Completada' : 'Pendiente'}</span>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ESCAPE HTML PARA PREVENIR INYECCIÓN
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>

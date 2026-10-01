@@ -1,0 +1,7 @@
+{
+  "name": "TAREA CERO",
+  "description": "Organizador y control rápido de tareas escolares para estudiantes de bachillerato: asignación por materia, fecha de entrega, prioridad y seguimiento de estado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

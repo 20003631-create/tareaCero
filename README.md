@@ -6,8 +6,8 @@
 
 ## 🔗 Enlaces del Proyecto
 
-* 🌐 **URL de la App Publicada:** [https://tu-usuario.github.io/tarea-cero](https://tu-usuario.github.io/tarea-cero) *(Reemplaza con tu enlace de GitHub Pages, Vercel o Netlify)*
-* 📂 **Repositorio en GitHub:** [https://github.com/tu-usuario/tarea-cero](https://github.com/tu-usuario/tarea-cero)
+* 🌐 **URL de la App Publicada:** [https://20003631-create.github.io/tarea-cero](https://tu-usuario.github.io/tarea-cero) *(Reemplaza con tu enlace de GitHub Pages, Vercel o Netlify)*
+* 📂 **Repositorio en GitHub:** [https://github.com/20003631-create/tarea-cero](https://github.com/tu-usuario/tarea-cero)
 * 📱 **Código QR de acceso rápido:** Disponible en `Evidencias/Tareacero.png`
 
 ---
